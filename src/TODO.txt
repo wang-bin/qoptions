@@ -1,0 +1,8 @@
+
+-a -b -c == -abc
+anonymous value
+
+variant {
+
+as<T>() //lexical_cast
+}

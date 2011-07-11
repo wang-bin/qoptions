@@ -21,17 +21,22 @@
 
 int main(int argc, char *argv[])
 {
-	bool male;
-	QOptions ops;qDebug("%s %s %d", __FILE__, __FUNCTION__, __LINE__);
-	ops.add("All options")
-	("name,n", "WangBin", QOption::SingleToken, "Your name")
+	//bool male;
+	QOptions ops;
+	ops.addDescription("QOptions: a tool to handle program options\n"
+	"Copyright (C) 2011 Wang Bin <wbsecg1@gmail.com>")
+	.add("All options")
 	("help,h", "help message")
+	("name,n", "WangBin", QOption::SingleToken, "Your name")
 	("age,a", 24, "Your age");
 	//("gender,g", &male, "Your gender");
 
 	ops.parse(argc, argv);
-	ops.print();
-	qDebug("name: %s, Age: %d, ", qPrintable(ops.value("name").toString()), ops.value("age").toInt());
+	if (ops.value("help").toBool()) { //move to parse
+		ops.print();
+		return 0;
+	}
+	qDebug("name: %s, Age: %d, ", qPrintable(ops.value("name").toString()), ops["age"].toInt());
 
 	return 0;
 }
