@@ -11,7 +11,7 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 DESTDIR = ../lib
-MOC_DIR = .moc
+MOC_DIR = .moc/$$[QT_VERSION]
 OBJECTS_DIR = .obj
 
 SOURCES += qoptions.cpp
