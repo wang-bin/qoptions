@@ -9,22 +9,14 @@ QT       -= gui
 TARGET = QOptions
 TEMPLATE = lib
 CONFIG += staticlib
+DEFINES += BUILD_QOPT_LIB
 
 DESTDIR = ../lib
 MOC_DIR = .moc/$$[QT_VERSION]
 OBJECTS_DIR = .obj
 
 SOURCES += qoptions.cpp
-
 HEADERS += qoptions.h
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/lib
-    }
-    INSTALLS += target
-}
 
 OTHER_FILES += \
     TODO.txt
