@@ -99,9 +99,9 @@ QString QOption::help() const
 {
 	QString message = formatName();
 	if (type()==QOption::SingleToken)
-		message.append(" arg");
+        message.append(" value");
 	else if (type()==QOption::MultiToken)
-		message.append(" arg1 ... argN");
+        message.append(" value1 ... valueN");
 
 	message = QString("%1").arg(message, -33);
 	message.append(mDescription);
@@ -195,61 +195,73 @@ bool QOptions::parse(int argc, const char *const*argv)
     QList<QOption>::Iterator it_list;
     mOptions = mOptionGroupMap.keys();
 
-	while (it!=args.end()) {
-        if ((*it).startsWith("--")) {
-			int e = (*it).indexOf('=');
-            for (it_list=mOptions.begin(); it_list!=mOptions.end(); ++it_list) {
-                if ((*it_list).longName().startsWith((*it).mid(2,e-2))) {
-                    if ((*it_list).type()==QOption::NoToken) {
-                        (*it_list).setValue(true);
-                        //qDebug("%d %s", __LINE__, qPrintable((*it_list).value().toString()));
+    while (it != args.end()) {
+        if (it->startsWith("--")) {
+            int e = it->indexOf('=');
+            for (it_list = mOptions.begin(); it_list != mOptions.end(); ++it_list) {
+                if (it_list->longName().startsWith(it->mid(2,e-2))) {
+                    if (it_list->type()==QOption::NoToken) {
+                        it_list->setValue(true);
+                        //qDebug("%d %s", __LINE__, qPrintable(it_list->value().toString()));
 						it = args.erase(it);
 						break;
 					}
 					if (e>0) { //
-                        (*it_list).setValue((*it).mid(e+1));
-                        //qDebug("%d %s", __LINE__, qPrintable((*it_list).value().toString()));
+                        it_list->setValue(it->mid(e+1));
+                        //qDebug("%d %s", __LINE__, qPrintable(it_list->value().toString()));
 					} else {
 						it = args.erase(it);
-                        (*it_list).setValue(*it);
-                        //qDebug("%d %s", __LINE__, qPrintable((*it_list).value().toString()));
+                        it_list->setValue(*it);
+                        //qDebug("%d %s", __LINE__, qPrintable(it_list->value().toString()));
 					}
 					it = args.erase(it);
 					break;
 				}
 			}
-			if (it_list==mOptions.end())
+            if (it_list == mOptions.end()) {
+                qWarning() << "unknow option: " << *it;
+                result = false;
 				++it;
+            }
 			//handle unknow option
-		} else if ((*it).startsWith('-')) {
-            for (it_list=mOptions.begin(); it_list!=mOptions.end(); ++it_list) {
-                QString sname = (*it_list).shortName();
+        } else if (it->startsWith('-')) {
+            for (it_list = mOptions.begin(); it_list != mOptions.end(); ++it_list) {
+                QString sname = it_list->shortName();
 				int sname_len = sname.length(); //usally is 1
 				//Not endsWith, -oabco
-				if ((*it).indexOf(sname)==1) {
-                    if ((*it_list).type()==QOption::NoToken) {
-                        (*it_list).setValue(true);
-                        //qDebug("%d %s", __LINE__, qPrintable((*it_list).value().toString()));
+                if (it->indexOf(sname) == 1) {
+                    if (it_list->type() == QOption::NoToken) {
+                        it_list->setValue(true);
+                        //qDebug("%d %s", __LINE__, qPrintable(it_list->value().toString()));
 						it = args.erase(it);
 						break;
 					}
-					if ((*it).length()==(sname_len+1)) {//-o abco
+                    if (it->length() == sname_len+1) {//-o abco
 						it = args.erase(it);
-                        (*it_list).setValue(*it);
-                        //qDebug("%d %s", __LINE__, qPrintable((*it_list).value().toString()));
+                        it_list->setValue(*it);
+                        //qDebug("%d %s", __LINE__, qPrintable(it_list->value().toString()));
 					} else {
-                        (*it_list).setValue((*it).mid(sname_len+1));
-                        //qDebug("%d %s", __LINE__, qPrintable((*it_list).value().toString()));
+                        it_list->setValue(it->mid(sname_len+1));
+                        //qDebug("%d %s", __LINE__, qPrintable(it_list->value().toString()));
 					}
 					it = args.erase(it);
 					break;
 				}
 			}
-			if (it_list==mOptions.end())
+            if (it_list==mOptions.end()) {
+                qWarning() << "unknow option: " << *it;
+                result = false;
 				++it;
+            }
 			//handle unknow option
-		}
+        } else {
+            qWarning() << "unknow option: " << *it;
+            ++it;
+        }
 	}
+    if (!result) {
+        print();
+    }
 	return result;
 }
 
@@ -313,8 +325,8 @@ QVariant QOptions::value(const QString& name) const
 
     QList<QOption>::ConstIterator it_list;
     for (it_list=mOptions.constBegin(); it_list!=mOptions.constEnd(); ++it_list) {
-        if ((*it_list).shortName()==name || (*it_list).longName()==name) {
-            return (*it_list).value();
+        if (it_list->shortName()==name || it_list->longName()==name) {
+            return it_list->value();
 		}
 	}
     return QVariant();
@@ -332,7 +344,7 @@ bool QOptions::isSet(const QString &name) const
 
     QList<QOption>::ConstIterator it_list;
     for (it_list=mOptions.constBegin(); it_list!=mOptions.constEnd(); ++it_list) {
-        if ((*it_list).shortName()==name || (*it_list).longName()==name) {
+        if (it_list->shortName()==name || it_list->longName()==name) {
             return it_list->isSet();
         }
     }
@@ -351,7 +363,7 @@ QString QOptions::help() const
         message.append("\n").append(*it);
         QList<QOption> options = mOptionGroupMap.keys(*it);
         for (it_op=options.constBegin();it_op!=options.constEnd();++it_op)
-            message.append("\n").append(it_op->help());
+            message.append("\n  ").append(it_op->help());
 	}
     return message;
 }

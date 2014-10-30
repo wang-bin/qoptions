@@ -32,6 +32,25 @@
 #  define QOPT_EXPORT
 #endif
 
+/*
+ command line: some_cmd -short1 value --long1 value --long2=value -short_novalue --long_novalue...
+ C++:
+ QOptions get_global_options() {
+    static QOptions ops = QOptions().addDescription("...")
+                    .add("common option group")
+                    ("long1,short1", default1, "description1")
+                    ("--long2", default2, "description2")
+                    ("short_novalue", "description3")
+                    ("--long_novalue", "description4")
+                    ;
+    return ops;
+ }
+ QOptions options = get_global_options();
+ options.add("special option group")(....)...;
+ options.parse(argc, argv);
+ int v1 = options.value("short1").toInt();
+ */
+
 class QOPT_EXPORT QOption {
 public:
     // TODO: MultiToken -name value1 -name value2 ...
@@ -82,6 +101,10 @@ public:
 	~QOptions();
     //QOptions& operator=(const QOptions& o);
 
+    /*!
+     * \brief parse
+     * \return false if invalid option found
+     */
 	bool parse(int argc, const char*const* argv);
 	QOptions& add(const QString& group_description);
 	QOptions& addDescription(const QString& description);
