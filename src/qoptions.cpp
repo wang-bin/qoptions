@@ -1,5 +1,5 @@
 /******************************************************************************
-	Name: description
+    QOptions: make command line options easy. https://github.com/wang-bin/qoptions
     Copyright (C) 2011-2014 Wang Bin <wbsecg1@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,9 @@
 #include "qoptions.h"
 #include <QtCore/QStringList>
 #include <QtCore/QtDebug>
+
+QOption::QOption()
+{}
 
 QOption::QOption(const char *name, const QVariant &defaultValue, Type type, const QString &description)
 :mType(type),mDescription(description),mDefaultValue(defaultValue)
@@ -83,6 +86,11 @@ bool QOption::isSet() const
     return mValue.isValid();
 }
 
+bool QOption::isValid() const
+{
+    return !shortName().isEmpty() || !longName().isEmpty();
+}
+
 void QOption::setType(QOption::Type type)
 {
 	mType = type;
@@ -105,6 +113,8 @@ QString QOption::help() const
 
 	message = QString("%1").arg(message, -33);
 	message.append(mDescription);
+    if (mDefaultValue.isValid() && !mDefaultValue.toString().isEmpty())
+        message.append(" (default: " + mDefaultValue.toString() + ")");
     return message;
 }
 
@@ -318,37 +328,28 @@ QOptions& QOptions::operator ()(const char* name, const QVariant& value, QOption
 	return *this;
 }
 */
-QVariant QOptions::value(const QString& name) const
+
+QOption QOptions::option(const QString &name) const
 {
     if (mOptions.isEmpty())
-        return QVariant();
-
+        return QOption();
     QList<QOption>::ConstIterator it_list;
     for (it_list=mOptions.constBegin(); it_list!=mOptions.constEnd(); ++it_list) {
         if (it_list->shortName()==name || it_list->longName()==name) {
-            return it_list->value();
-		}
-	}
-    return QVariant();
+            return *it_list;
+        }
+    }
+    return QOption();
+}
+
+QVariant QOptions::value(const QString& name) const
+{
+    return option(name).value();
 }
 
 QVariant QOptions::operator [](const QString& name) const
 {
     return value(name);
-}
-
-bool QOptions::isSet(const QString &name) const
-{
-    if (mOptions.isEmpty())
-        return false;
-
-    QList<QOption>::ConstIterator it_list;
-    for (it_list=mOptions.constBegin(); it_list!=mOptions.constEnd(); ++it_list) {
-        if (it_list->shortName()==name || it_list->longName()==name) {
-            return it_list->isSet();
-        }
-    }
-    return false;
 }
 
 QString QOptions::help() const

@@ -1,5 +1,5 @@
 /******************************************************************************
-	Name: description
+    QOptions: make command line options easy. https://github.com/wang-bin/qoptions
     Copyright (C) 2011-2014 Wang Bin <wbsecg1@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
@@ -57,6 +57,7 @@ public:
 	enum Type {
 		NoToken, SingleToken, MultiToken
 	};
+    QOption();
 	explicit QOption(const char* name, const QVariant& defaultValue, Type type, const QString& description);
 	explicit QOption(const char* name, Type type, const QString& description);
     //explicit QOption(const char* name, const QVariant& value, Type type, const QString& description);
@@ -68,6 +69,7 @@ public:
 	QVariant value() const;
 	void setValue(const QVariant& value);
     bool isSet() const;
+    bool isValid() const;
 
 	void setType(QOption::Type type);
 	QOption::Type type() const;
@@ -103,6 +105,8 @@ public:
 
     /*!
      * \brief parse
+     * \param argc
+     * \param argv
      * \return false if invalid option found
      */
 	bool parse(int argc, const char*const* argv);
@@ -115,10 +119,9 @@ public:
 	QOptions& operator ()(const char* name, const QVariant& defaultValue, QOption::Type type, const QString& description = "");
 	//QOptions& operator ()(const char* name, QVariant* value, QOption::Type type, const QString& description = "");
 
+    QOption option(const QString& name) const;
     QVariant value(const QString& name) const;
     QVariant operator [](const QString& name) const;
-    //is set by cmd line. option.value.isValid
-    bool isSet(const QString& name) const;
 
     QString help() const;
     void print() const;
