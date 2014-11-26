@@ -198,7 +198,7 @@ bool QOptions::parse(int argc, const char *const*argv)
 	bool result = true;
     QStringList args;
     for (int i=1;i<argc;++i) {
-		args.append(argv[i]);
+        args.append(argv[i]);
 	}
 
 	QStringList::Iterator it = args.begin();
@@ -288,6 +288,14 @@ QOptions& QOptions::addDescription(const QString &description)
 {
 	mDescription = description;
 	return *this;
+}
+
+
+QOptions& QOptions::operator ()(const QOption& op)
+{
+    mOptions.append(op);
+    mOptionGroupMap.insert(op, op.description());
+    return *this;
 }
 
 QOptions& QOptions::operator ()(const char* name, const QString& description)

@@ -38,7 +38,7 @@
  QOptions get_global_options() {
     static QOptions ops = QOptions().addDescription("...")
                     .add("common option group")
-                    ("long1,short1", default1, "description1")
+                    ({"long1,short1", default1, "description1"}) // c++11
                     ("--long2", default2, "description2")
                     ("short_novalue", "description3")
                     ("--long_novalue", "description4")
@@ -58,9 +58,10 @@ public:
 		NoToken, SingleToken, MultiToken
 	};
     QOption();
-	explicit QOption(const char* name, const QVariant& defaultValue, Type type, const QString& description);
-	explicit QOption(const char* name, Type type, const QString& description);
-    //explicit QOption(const char* name, const QVariant& value, Type type, const QString& description);
+    // implicity is useful for c++11:
+    QOption(const char* name, const QVariant& defaultValue, Type type, const QString& description);
+    QOption(const char* name, Type type, const QString& description);
+    //QOption(const char* name, const QVariant& value, Type type, const QString& description);
 
 	QString shortName() const;
 	QString longName() const;
@@ -113,11 +114,12 @@ public:
 	QOptions& add(const QString& group_description);
 	QOptions& addDescription(const QString& description);
 
+    QOptions& operator ()(const QOption& op);
 	QOptions& operator ()(const char* name, const QString& description = "");
 	QOptions& operator ()(const char* name, QOption::Type type, const QString& description = "");
     QOptions& operator ()(const char* name, const QVariant& defaultValue, const QString& description);
-	QOptions& operator ()(const char* name, const QVariant& defaultValue, QOption::Type type, const QString& description = "");
-	//QOptions& operator ()(const char* name, QVariant* value, QOption::Type type, const QString& description = "");
+    QOptions& operator ()(const char* name, const QVariant& defaultValue, QOption::Type type, const QString& description = "");
+    //QOptions& operator ()(const char* name, QVariant* value, QOption::Type type, const QString& description = "");
 
     QOption option(const QString& name) const;
     QVariant value(const QString& name) const;
